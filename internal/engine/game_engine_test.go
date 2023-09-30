@@ -1,4 +1,4 @@
-package game_engine_test
+package engine_test
 
 import (
 	"reflect"

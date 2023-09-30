@@ -1,4 +1,4 @@
-package game_engine
+package engine
 
 import player "github.com/santo0/risk-game-go/internal/model"
 
@@ -20,6 +20,10 @@ func NextTurn(game Game) player.Player {
 		game.round += 1
 	}
 	return game.players[game.player_turn]
+}
+
+func DoPlayerAction(action string, player player.Player) {
+	// Desde aqui es cridaria a la resta de funcionalitats
 }
 
 func GetPlayers(game Game) []player.Player {
