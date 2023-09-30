@@ -10,11 +10,10 @@ type Game struct {
 }
 
 func CreateGame(players []model.Player, battlefield Battlefield) Game {
-	//len(players)
-	return Game{players, 0, 0, battlefield}
+	return Game{players: players, round: 0, player_turn: 0, battlefield: battlefield}
 }
 
-func NextTurn(game Game) model.Player {
+func (game *Game) NextTurn() model.Player {
 	game.player_turn += 1
 	if game.player_turn >= len(game.players) {
 		game.player_turn = 0
@@ -26,15 +25,18 @@ func NextTurn(game Game) model.Player {
 func DoPlayerAction(action string, player model.Player) {
 	// Desde aqui es cridaria a la resta de funcionalitats
 }
+func (game Game) GetCurrentPlayer() model.Player {
+	return game.players[game.player_turn%len(game.players)]
+}
 
-func GetPlayers(game Game) []model.Player {
+func (game Game) GetPlayers() []model.Player {
 	return game.players
 }
 
-func GetRound(game Game) int {
+func (game Game) GetRound() int {
 	return game.round
 }
 
-func GetPlayerTurn(game Game) int {
+func (game Game) GetPlayerTurn() int {
 	return game.player_turn
 }
