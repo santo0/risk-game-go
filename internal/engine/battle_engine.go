@@ -1,8 +1,12 @@
 package engine
 
 import (
+	"bufio"
 	"errors"
+	"log"
 	"math/rand"
+	"os"
+	"strings"
 
 	troop "github.com/santo0/risk-game-go/internal/model"
 )
@@ -51,7 +55,7 @@ type AttackResult struct {
 }
 
 type Battlefield interface {
-	ExecuteAttack(int, int) AttackResult
+	ExecuteAttack(int, int) (AttackResult, error)
 }
 
 type BattlefieldMap struct {
@@ -59,11 +63,43 @@ type BattlefieldMap struct {
 	positions map[int][]int
 	// map of positions with their current armies
 	armies_positions map[int]troop.Army
+	decider          IDecisionGenerator
+}
+
+func (btf BattlefieldMap) GetPositions() map[int][]int {
+	return btf.positions
 }
 
 // TODO: Llegir el fitxer i crear el mapa
-func CreateBattlefieldMap(battlefieldInputFilePath string) BattlefieldMap {
-	return BattlefieldMap{}
+func CreateBattlefieldMap(btfMapPath string, decider IDecisionGenerator) BattlefieldMap {
+	file, err := os.Open(btfMapPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	positions := make(map[int][]int)
+	armies_positions := make(map[int]troop.Army)
+	scanner := bufio.NewScanner(file)
+	i := 0
+	for scanner.Scan() {
+		lineSlice := strings.Split(scanner.Text(), ",")
+		var s []int
+		armies_positions[i] = troop.Army{PlayerId: -1}
+		for j, c := range lineSlice {
+			if c == "1" && i != j {
+				s = append(s, j)
+			}
+		}
+		positions[i] = s
+		i++
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	return BattlefieldMap{positions: positions, armies_positions: armies_positions, decider: decider}
 }
 
 func (battlefield BattlefieldMap) GetPositionArmy(position int) troop.Army {
@@ -78,11 +114,11 @@ func (battlefield BattlefieldMap) SetPositionArmy(position int, army troop.Army)
 	battlefield.armies_positions[position] = army
 }
 
-func (battlefield BattlefieldMap) ExecuteAttack(attackingPosition int, defendingPosition int, decider IDecisionGenerator) (AttackResult, error) {
+func (battlefield BattlefieldMap) ExecuteAttack(attackingPosition int, defendingPosition int) (AttackResult, error) {
 	// Checkejar de que se pugui fer l'atac: que sigon adjacents i que hi hagin tropes suficients
 	attackArmy := battlefield.armies_positions[attackingPosition]
 	defendArmy := battlefield.armies_positions[defendingPosition]
-	decision, err := decider.Decide(attackArmy.Quantity, defendArmy.Quantity)
+	decision, err := battlefield.decider.Decide(attackArmy.Quantity, defendArmy.Quantity)
 	if err == nil {
 		return AttackResult{}, err
 	}

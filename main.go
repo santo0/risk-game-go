@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
-	troops "github.com/santo0/risk-game-go/internal/model"
+	engine "github.com/santo0/risk-game-go/internal/engine"
+	model "github.com/santo0/risk-game-go/internal/model"
 )
+
+const MAP_FILE string = "/home/user/Documents/hacknights_29092023/risk-game-go/assets/battlefield_map_1.txt"
 
 func hello(w http.ResponseWriter, req *http.Request) {
 
@@ -22,9 +25,13 @@ func headers(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	fmt.Println("REKPE")
-	ar := troops.Army{PlayerId: 1, Quantity: 2}
-	fmt.Println(ar)
+	players := []model.Player{
+		{PlayerName: "joe", PlayerId: 1},
+		{PlayerName: "bill", PlayerId: 2},
+		{PlayerName: "mike", PlayerId: 3},
+	}
+	btf := engine.CreateBattlefieldMap(MAP_FILE, engine.DiceBattleConfiguration{})
+	engine.CreateGame(players, btf)
 	http.HandleFunc("/hello", hello)
 	http.HandleFunc("/headers", headers)
 

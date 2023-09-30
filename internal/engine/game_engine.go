@@ -1,19 +1,20 @@
 package engine
 
-import player "github.com/santo0/risk-game-go/internal/model"
+import model "github.com/santo0/risk-game-go/internal/model"
 
 type Game struct {
-	players     []player.Player
+	players     []model.Player
 	round       int
 	player_turn int
+	battlefield Battlefield
 }
 
-func CreateGame(players []player.Player) Game {
+func CreateGame(players []model.Player, battlefield Battlefield) Game {
 	//len(players)
-	return Game{players, 0, 0}
+	return Game{players, 0, 0, battlefield}
 }
 
-func NextTurn(game Game) player.Player {
+func NextTurn(game Game) model.Player {
 	game.player_turn += 1
 	if game.player_turn >= len(game.players) {
 		game.player_turn = 0
@@ -22,11 +23,11 @@ func NextTurn(game Game) player.Player {
 	return game.players[game.player_turn]
 }
 
-func DoPlayerAction(action string, player player.Player) {
+func DoPlayerAction(action string, player model.Player) {
 	// Desde aqui es cridaria a la resta de funcionalitats
 }
 
-func GetPlayers(game Game) []player.Player {
+func GetPlayers(game Game) []model.Player {
 	return game.players
 }
 
